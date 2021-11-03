@@ -1,10 +1,9 @@
 import numpy as np
 import pandas as pd
-from collections import OrderedDict
+import matplotlib.pyplot as plt
+import seaborn as sns
+import os
 
-
-
-#Inciso 2
 
 def promedio(x):
     return sum(x)/len(x)
@@ -81,12 +80,12 @@ def cuentasUnicas(x):
 
     return cuentas   
 
-    # for cat in x:
-    #     if cat not in cuentas.keys():
-    #         cuentas.setdefault(str(cat),1)
-    #     else:
-    #         cuentas[str(cat)]+=1
-    # return cuentas
+    for cat in x:
+        if cat not in cuentas.keys():
+            cuentas.setdefault(str(cat),1)
+        else:
+            cuentas[str(cat)]+=1
+    return cuentas
 
 def modas(x,n):
 
@@ -102,14 +101,14 @@ def modas(x,n):
     return campeones
 
 def tablaResumen(data):
-    dataNum=data.select_dtypes(include=["float64","int64"])
+    dataNum=data.select_dtypes(include=["float64","int64"]) 
     resumen={}
     columnas=dataNum.columns[1:]
     for col in columnas:
         L=[min,percentiles,mediana,promedio,max,rangoMuestral,varianza,desvEst,skew,curtosis,notNA]
         r=vectorFunc(L,dataNum[col],[])
         resumen[col]=r
-    return pd.DataFrame.from_cuentast(resumen,orient='index',columns=["Mín","Q1Q3","Mediana","Promedio","Máx","RangoMuestral","Varianza","STD","Sesgo","Curtosis","NaN´s"]).T
+    return pd.DataFrame.from_dict(resumen,orient='index',columns=["Mín","Q1Q3","Mediana","Promedio","Máx","RangoMuestral","Varianza","STD","Sesgo","Curtosis","NaN´s"]).T
 
 def frecAbs(x):
     nuevo={}
@@ -193,40 +192,43 @@ def imprFrecAc(frec):
             suma+=n
         print("Total acumulado de {0}: {1}".format(i,suma))
 
-#Convirtiendo la columna de Cylinders a numérica pues la identifica como object
-data=pd.read_csv("Cars93.csv")
-data["Cylinders"]=data["Cylinders"].replace("rotary","4")
+def imprimeModas(x):
+    for k,v in x.items():
+        print("Modas para {}".format(k))
+        for ll,val in v.items():
+            print("{0}  {1}".format(ll,val))
+
+for i in range(5,9):
+    os.makedirs("TareaExamen/incisos/inciso{0}".format(i))
+    
+    
+#inciso 2
+data=pd.read_csv("TareaExamen/Cars93.csv")
+data["Cylinders"]=data["Cylinders"].replace("rotary","5")
 data["Cylinders"]=data["Cylinders"].apply(int)
 
 
-
-# tablaSucia=tablaResumen(data)
-# print("Tabla de resumen con data sin limpiar:\n",tablaSucia)
-
-
-# #Limpiamos la data
-# data['Rear.seat.room'] = data.apply(lambda x : limpieza2(x["Rear.seat.room"],x["Passengers"]),axis=1)
-# data['Luggage.room'] = data.apply(lambda x: limpieza1(x['Luggage.room'], max(data["Luggage.room"])), axis=1)
-# tablaLimpia=tablaResumen(data)
-# print("Tabla de resumen con data limpia",tablaLimpia)
-
+tablaSucia=tablaResumen(data)
+print("Inciso 2:\nTabla de resumen con data sin limpiar:\n",tablaSucia)
+#Limpiamos la data
+data['Rear.seat.room'] = data.apply(lambda x : limpieza2(x["Rear.seat.room"],x["Passengers"]),axis=1)
+data['Luggage.room'] = data.apply(lambda x: limpieza1(x['Luggage.room'], max(data["Luggage.room"])), axis=1)
+tablaLimpia=tablaResumen(data)
+print("Tabla de resumen con data limpia",tablaLimpia)
 
 
 #inciso 3
-
+print("Inciso 3:\n")
 dataCat=data.select_dtypes(include=["object"])
-print(cuentasUnicas(dataCat))
-print("Modas:\n",modas(cuentasUnicas(dataCat),3))
+print("Modas:")
+print(imprimeModas(modas(cuentasUnicas(dataCat),3)))
 
 absoluta=frecAbs(cuentasUnicas(dataCat))
 #Frecuencia absoluta:
 
-
-
-
 #Frecuencia acumulada:
 acumulada=frecAcum(absoluta)
-print("Frecuencia acumulada\n\n\n\n\n",acumulada)
+print("Frecuencia acumulada\n\n",acumulada)
 
 #Frecuencia relativa:
 frecRel=frecRelativa(absoluta)
@@ -234,3 +236,59 @@ frecRel=frecRelativa(absoluta)
 impFrecRel(frecRel)
 impFrecAbs(absoluta)
 imprFrecAc(acumulada)
+
+
+#inciso 4
+
+#Tabulamos conjuntamente 2 dataframes distinas, la primera separando a partir de Type AirBags y la segunda por Cylinders,Man.trans.avail y las analizamos a partir de la 
+#media, mínimo, max y la desviación estandar del precio.  
+conjunta1 = data.groupby(["Type","AirBags"]).agg({'Price': ['mean', 'min', 'max',"std"]})
+conjunta2 = data.groupby(["Cylinders","Man.trans.avail"]).agg({'Price': ['mean', 'min', 'max',"std"]})
+print("Inciso 4:")
+print(conjunta1,"\n\n\n\n")
+print(conjunta2)
+
+
+#inciso 5
+
+cuantitativas=data.select_dtypes(include=(["float64","int64"]))
+nombres=[x for x in cuantitativas.columns][1:]
+colores=["Accent", "Accent_r", "Blues", "Blues_r", "BrBG", "BrBG_r", "BuGn", "BuGn_r", "BuPu", "BuPu_r", 
+ "CMRmap", "CMRmap_r", "Dark2", "Dark2_r", "GnBu", "GnBu_r", "Greens", "Greens_r", "Greys", "Greys_r", "OrRd", 
+ "OrRd_r", "Oranges", "Oranges_r", "PRGn", "PRGn_r", "Paired", "Paired_r"]
+
+
+for c,i in enumerate(nombres):
+    fig, ax = plt.subplots()
+    sns.set_palette("{}".format(colores[c]))
+    sns.boxplot(data=cuantitativas[i]).set(title='Boxplot de {0}'.format(i), xlabel='{}'.format(i))
+    plt.savefig("TareaExamen/incisos/inciso5/boxplot{}.png".format(i))
+    plt.close()
+    
+    
+    
+    
+#inciso 6
+
+sns.boxplot(y="Max.Price",x="Cylinders",data=cuantitativas,palette="PRGn")
+plt.savefig("TareaExamen/incisos/inciso6/PrecioMaximoCilindros.png")
+plt.close()
+
+#Inciso 7
+sns.boxplot(y="Horsepower",x="Cylinders",data=cuantitativas,palette="PRGn")
+plt.savefig("TareaExamen/incisos/inciso7/CilindrosCaballos")
+plt.close()
+
+
+#inciso 8
+
+corrs=cuantitativas[["Length","Width","Wheelbase","Rear.seat.room","Luggage.room"]]
+
+corrdf=corrs.corr()
+
+
+print("Inciso 8:\nTabla de correlaciones:")
+print(corrdf)
+sns.heatmap(corrdf, annot=True)
+plt.savefig("TareaExamen/incisos/inciso8/TablaCorrelaciones.png")
+plt.close()

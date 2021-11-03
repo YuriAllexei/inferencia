@@ -1,0 +1,3 @@
+En la gráfica del inciso 8 podemos ver que las variables estan considerablemente correlacionadas una con otra, lo cual tiene sentido 
+pues se están sacando las correlaciones entre medidas de longitud/ancho/espacio entre aspectos del coche por lo que nos denota una correlacion positiva
+en casi todas. 

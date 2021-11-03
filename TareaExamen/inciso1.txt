@@ -1,0 +1,6 @@
+Tipos de nivel de medición de las variables de la data frame Cars93
+Inciso 1:
+Nominales: Manufactorer, Model, Origin, Make , Man.trans.avail, DriveTrain
+Ordinales:Type, DriveTrain
+Intervalo: "Rev.per.mile", "RPM", "MPG.Price", "MPG.highway", "EngineSize",
+Razón: "Price","Airbags" , "Cylinders","Length", "Wheelbase", "Width", "Rear.seat.room","Luggage.room","Passengers","Fuel.tank.capacity", "Horsepower","Max.Price", "Turn.circle", "Weight"
